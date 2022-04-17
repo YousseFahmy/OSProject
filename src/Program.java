@@ -40,9 +40,9 @@ public class Program {
 		// TODO complete method
 	}
 	
-	public Object getVariable(String varIdentifier){
+	public Object getVariable(String requestedVarIdentifier){
 		for(Variable<?> var : vars) {
-			if(varIdentifier == var.getIdentifier()) return var.getValue();
+			if(requestedVarIdentifier.equals(var.getIdentifier())) return var.getValue();
 		}
 		return null; // TODO Throw error
 	}
