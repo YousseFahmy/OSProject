@@ -12,13 +12,8 @@ public class Mutex {
 		this.blockedList = new LinkedList<>();
 	}
 	
-	public boolean semWait(Program requester) {
-		if(this.available) {
-			lockMutex(requester);
-			return true;
-		}
-		this.blockedList.add(requester);
-		return false;
+	public void semWait(Program requester) {
+		lockMutex(requester);
 	}
 
 	private void lockMutex(Program requester) {
@@ -41,6 +36,10 @@ public class Mutex {
 		this.holder = null;
 		this.available = true;
 	}
+	
+	public void addToBlockedList(Program programToBlock) {
+		this.blockedList.add(programToBlock);
+	}
 
 	private void emptyBlockedList() {
 		int listSize = this.blockedList.size();
@@ -51,5 +50,9 @@ public class Mutex {
 	
 	public String getResourceName() {
 		return this.resourceName;
+	}
+	
+	public boolean isAvailable() {
+		return this.available;
 	}
 }
