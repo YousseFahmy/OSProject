@@ -14,23 +14,38 @@ public class Mutex {
 	
 	public boolean semWait(Program requester) {
 		if(this.available) {
-			this.holder = requester;
-			this.available = false;
+			lockMutex(requester);
 			return true;
 		}
-		blockedList.add(requester);
+		this.blockedList.add(requester);
 		return false;
+	}
+
+	private void lockMutex(Program requester) {
+		this.holder = requester;
+		this.available = false;
 	}
 	
 	public void semSignal(Program releaser) {
-		if(!this.available && holder.equals(releaser)) {
-			this.holder = null;
-			this.available = true;
+		if(validSignal(releaser)) {
+			releaseMutex();
+			emptyBlockedList();
 		}
-		
-		int listSize = blockedList.size();
+	}
+
+	private boolean validSignal(Program releaser) {
+		return !this.available && this.holder.equals(releaser);
+	}
+
+	private void releaseMutex() {
+		this.holder = null;
+		this.available = true;
+	}
+
+	private void emptyBlockedList() {
+		int listSize = this.blockedList.size();
 		for(int i = 0; i < listSize; i++) {
-			blockedList.remove().setState(State.READY);
+			this.blockedList.remove().setState(State.READY);
 		}
 	}
 	
