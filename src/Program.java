@@ -1,19 +1,19 @@
 import java.io.File;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 public class Program {
 	private int id;
 	private File code;
 	private State state;
 	private int nextInstruction;
-	private LinkedList<Variable<?>> vars;
+	private HashMap<String, String> vars;
 	
 	public Program(int id, String codePath) {
 		this.id = id;
 		this.code = new File(codePath);
 		this.state = State.READY;
 		this.nextInstruction = 0;
-		this.vars = new LinkedList<>();
+		this.vars = new HashMap<>();
 	}
 	
 	public int getID() {
@@ -40,14 +40,11 @@ public class Program {
 		// TODO complete method
 	}
 	
-	public Object getVariable(String requestedVarIdentifier){
-		for(Variable<?> var : vars) {
-			if(requestedVarIdentifier.equals(var.getIdentifier())) return var.getValue();
-		}
-		return null; // TODO Throw error
+	public String getVariable(String requestedVarIdentifier){
+		return vars.get(requestedVarIdentifier);
 	}
 	
-	public void addVariable(Variable<?> var) {
-		vars.add(var);
+	public void addVariable(String identifier, String value) {
+		vars.put(identifier, value);
 	}
 }
