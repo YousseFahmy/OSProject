@@ -5,11 +5,13 @@ public class Mutex {
 	private boolean available;
 	private Program holder;
 	private LinkedList<Program> blockedList;
+	private Scheduler scheduler;
 	
 	public Mutex(String resourceName) {
 		this.resourceName = resourceName;
 		this.available = true;
 		this.blockedList = new LinkedList<>();
+		this.scheduler = Scheduler.getSchedulerInstance();
 	}
 	
 	public void semWait(Program requester) {
@@ -40,7 +42,8 @@ public class Mutex {
 	private void emptyBlockedList() {
 		int listSize = this.blockedList.size();
 		for(int i = 0; i < listSize; i++) {
-			this.blockedList.remove().setState(State.READY);
+			Program readiedProgram = this.blockedList.remove();
+			scheduler.readyProgram(readiedProgram);
 		}
 	}
 	

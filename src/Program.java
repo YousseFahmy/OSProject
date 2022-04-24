@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import exceptions.ProgramFinishedException;
+
 public class Program {
 	private int id;
 	private ArrayList<String> code;
@@ -36,6 +38,10 @@ public class Program {
 	}
 	
 	public String nextLine() {
+		if(nextInstruction == code.size()) {
+			throw new ProgramFinishedException();
+		}
+		
 		return code.get(nextInstruction++);
 	}
 	
@@ -46,6 +52,10 @@ public class Program {
 	
 	public void ready() {
 		this.state = State.READY;
+	}
+	
+	public void finish() {
+		this.state = State.FINISHED;
 	}
 	
 	public String getVariable(String requestedVarIdentifier){
@@ -71,4 +81,6 @@ public class Program {
 	public State getState() {
 		return this.state;
 	}
+
+	
 }

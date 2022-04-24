@@ -4,12 +4,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+import exceptions.ProgramBlockedException;
 
 public class Processor {
 
-	private Scheduler scheduler;
 	private Hashtable<String, Mutex> mutexes;
 	private Program runningProgram;
 	private Scanner scanner;
@@ -17,11 +17,6 @@ public class Processor {
 	public Processor() {
 		this.scanner = new Scanner(System.in);
 		initialiseSystemMutexes();
-	}
-	
-	public Processor(Scheduler scheduler) {
-		this();
-		this.scheduler = scheduler;
 	}
 
 	private void initialiseSystemMutexes() {
@@ -89,6 +84,7 @@ public class Processor {
 	}
 
 	private String inputFromUser() {
+		System.out.println(runningProgram.getID());
 		System.out.print("Please enter a value > ");
 		return scanner.nextLine();
 	}
@@ -140,16 +136,21 @@ public class Processor {
 		Mutex mutex = mutexes.get(mutexName);
 		
 		if(mutex == null) {
-			mutex = new Mutex(mutexName);
-			mutexes.put(mutexName, mutex);
+			mutex = createAndReturnNewMutex(mutexName);
 		}
 		
 		if(mutex.isAvailable()) {
 			mutex.semWait(runningProgram);
 		}else {
 			mutex.addToBlockedList(runningProgram);
-			//scheduler.addToBlockedQueue(runningProgram);
+			throw new ProgramBlockedException();
 		}
+	}
+
+	private Mutex createAndReturnNewMutex(String mutexName) {
+		Mutex mutex = new Mutex(mutexName);
+		mutexes.put(mutexName, mutex);
+		return mutex;
 	}
 	
 	private void commandSemSignal(String[] commandLine) {
