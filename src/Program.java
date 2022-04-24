@@ -12,8 +12,10 @@ public class Program {
 	private int nextInstruction;
 	private Hashtable<String, String> vars;
 	
-	public Program(int id, String fileName) {
-		this.id = id;
+	private static int nextId = 0;
+	
+	public Program(String fileName) {
+		this.id = nextId++;
 		this.state = State.READY;
 		this.nextInstruction = 0;
 		this.vars = new Hashtable<>();
