@@ -42,7 +42,7 @@ public class Program {
 		decrementNextInstructionCounter();
 	}
 	
-	public void release() {
+	public void ready() {
 		this.state = State.READY;
 	}
 	
