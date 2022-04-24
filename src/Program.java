@@ -1,19 +1,61 @@
+import java.io.BufferedReader;
 import java.io.File;
-import java.util.HashMap;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class Program {
 	private int id;
-	private File code;
+	private ArrayList<String> code;
 	private State state;
 	private int nextInstruction;
-	private HashMap<String, String> vars;
+	private Hashtable<String, String> vars;
 	
-	public Program(int id, String codePath) {
+	public Program(int id, String fileName) {
 		this.id = id;
-		this.code = new File(codePath);
 		this.state = State.READY;
 		this.nextInstruction = 0;
-		this.vars = new HashMap<>();
+		this.vars = new Hashtable<>();
+		this.code = new ArrayList<>();
+		readProgramCode(fileName);
+	}
+
+	private void readProgramCode(String fileName) {
+		String filePath = "programs" + File.separator + fileName;
+		try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+			String line;
+			while((line = reader.readLine()) != null) {
+				code.add(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String nextLine() {
+		return code.get(nextInstruction++);
+	}
+	
+	public void block() {
+		this.state = State.BLOCKED;
+		decrementNextInstructionCounter();
+	}
+	
+	public void release() {
+		this.state = State.READY;
+	}
+	
+	public String getVariable(String requestedVarIdentifier){
+		return vars.get(requestedVarIdentifier);
+	}
+	
+	public void addVariable(String identifier, String value) {
+		vars.put(identifier, value);
+	}
+	
+	private void decrementNextInstructionCounter() {
+		nextInstruction--;
 	}
 	
 	public int getID() {
@@ -26,25 +68,5 @@ public class Program {
 	
 	public State getState() {
 		return this.state;
-	}
-	
-	public void block() {
-		this.state = State.BLOCKED;
-	}
-	
-	public void release() {
-		this.state = State.READY;
-	}
-	
-	public void execute() {
-		// TODO complete method
-	}
-	
-	public String getVariable(String requestedVarIdentifier){
-		return vars.get(requestedVarIdentifier);
-	}
-	
-	public void addVariable(String identifier, String value) {
-		vars.put(identifier, value);
 	}
 }
