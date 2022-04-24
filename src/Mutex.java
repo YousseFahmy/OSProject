@@ -37,15 +37,15 @@ public class Mutex {
 		this.available = true;
 	}
 	
-	public void addToBlockedList(Program programToBlock) {
-		this.blockedList.add(programToBlock);
-	}
-
 	private void emptyBlockedList() {
 		int listSize = this.blockedList.size();
 		for(int i = 0; i < listSize; i++) {
 			this.blockedList.remove().setState(State.READY);
 		}
+	}
+	
+	public void addToBlockedList(Program programToBlock) {
+		this.blockedList.add(programToBlock);
 	}
 	
 	public String getResourceName() {
