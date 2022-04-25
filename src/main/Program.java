@@ -10,15 +10,17 @@ import exceptions.ProgramFinishedException;
 
 public class Program {
 	private int id;
+	private String name;
 	private ArrayList<String> code;
 	private State state;
 	private int nextInstruction;
 	private Hashtable<String, String> vars;
 	
-	private static int nextId = 0;
+	private static int nextId = 1;
 	
 	public Program(String fileName) {
 		this.id = nextId++;
+		this.name = fileName;
 		this.state = State.READY;
 		this.nextInstruction = 0;
 		this.vars = new Hashtable<>();
@@ -38,12 +40,18 @@ public class Program {
 		}
 	}
 	
-	public String nextLine() {
+	public String getNextInstruction() {
 		if(nextInstruction == code.size()) {
 			throw new ProgramFinishedException();
 		}
 		
-		return code.get(nextInstruction++);
+		return code.get(nextInstruction);
+	}
+	
+	public String getNextInstructionAndIncrement() {
+		String instruction = this.getNextInstruction();
+		nextInstruction++;
+		return instruction;
 	}
 	
 	public void block() {
@@ -75,12 +83,21 @@ public class Program {
 		return this.id;
 	}
 	
+	public String getName() {
+		return this.name;
+	}
+	
 	public void setState(State newState) {
 		this.state = newState;
 	}
 	
 	public State getState() {
 		return this.state;
+	}
+	
+	@Override
+	public String toString() {
+		return "ID: " + this.id + " Program: " + this.name;
 	}
 
 	

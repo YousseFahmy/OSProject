@@ -1,6 +1,8 @@
 package main;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 import exceptions.ProgramBlockedException;
 import exceptions.ProgramFinishedException;
@@ -13,28 +15,32 @@ public class Scheduler {
 	private int currentTimeTick;
 	private Processor processor;
 	private Hashtable<Integer, LinkedList<Program>> toAddTable;
+	private Scanner scanner;
 	
 	private final int TIME_SLICE_AMOUNT = 2;
+	
+	private boolean pausePrinting = true;
 	
 	private Scheduler(){
 		this.readyQueue = new LinkedList<>();
 		this.blockedQueue = new LinkedList<>();
 		this.currentTimeTick = 0;
 		this.toAddTable = new Hashtable<>();
+		scanner = new Scanner(System.in);
 	}
 	
 	public void run() {
+		checkProgramsToAdd();
 		do {
-			checkProgramsToAdd();
 			runSlice();
-			currentTimeTick++;
 		} while(!this.finishedExecuting());
 	}
-	
+
 	private void checkProgramsToAdd() {
 		LinkedList<Program> toAddNowList = toAddTable.get(currentTimeTick);
 		if(toAddNowList != null) {
 			for(Program programToAdd : toAddNowList) addProgram(programToAdd);
+			toAddNowList.clear();
 		}
 	}
 	
@@ -43,17 +49,43 @@ public class Scheduler {
 	}
 
 	private void runSlice() {
-		Program programToRun = readyQueue.removeFirst();
+		Program programToRun;
+		
+		try {
+			programToRun = readyQueue.removeFirst();
+		} catch (NoSuchElementException e) {
+			programToRun = null;
+			currentTimeTick++;
+		}
+		
 		try {
 			for(int tick = 0; tick < TIME_SLICE_AMOUNT; tick++) {
-				processor.run(programToRun);
+				checkProgramsToAdd();
+				printSliceAnalysis(programToRun);
+				if(programToRun != null) processor.run(programToRun);
+				currentTimeTick++;
 			}
-			readyQueue.addLast(programToRun);
+			if(programToRun != null) readyQueue.addLast(programToRun);
 		}catch (ProgramBlockedException e) {
 			blockProgram(programToRun);
 		}catch (ProgramFinishedException e) {
 			finishProgram(programToRun);
 		}
+	}
+	
+	private void printSliceAnalysis(Program runningProgram) {
+		String programName = runningProgram == null ? "None" : runningProgram.getName();
+		String currentlyRunningInstruction = runningProgram == null ? "None" : runningProgram.getNextInstruction();
+		System.out.println("#################");
+		System.out.println("Current Tick: " + currentTimeTick);
+		System.out.println("Current Program: " + programName);
+		System.out.println("Current Instruction: " + currentlyRunningInstruction);
+		System.out.println("Ready Queue:");
+		System.out.println(readyQueue);
+		System.out.println("Blocked Queue:");
+		System.out.println(blockedQueue);
+		System.out.println("#################");
+		if(pausePrinting) scanner.nextLine();
 	}
 	
 	public void addProgram(Program program, int time) {
@@ -77,11 +109,13 @@ public class Scheduler {
 	private void blockProgram(Program program) {
 		blockedQueue.add(program);
 		program.block();
+		currentTimeTick++;
 	}
 	
 	private void finishProgram(Program program) {
 		readyQueue.remove(program);
 		program.finish();
+		//currentTimeTick++;
 	}
 	
 	public boolean finishedExecuting() {

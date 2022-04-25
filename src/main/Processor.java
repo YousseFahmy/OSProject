@@ -28,7 +28,7 @@ public class Processor {
 	
 	public void run(Program program) {
 		this.runningProgram = program;
-		String lineToRun = program.nextLine();
+		String lineToRun = program.getNextInstructionAndIncrement();
 		execute(lineToRun);
 		this.runningProgram = null;
 	}
@@ -85,7 +85,6 @@ public class Processor {
 	}
 
 	private String inputFromUser() {
-		System.out.println(runningProgram.getID());
 		System.out.print("Please enter a value > ");
 		return scanner.nextLine();
 	}
