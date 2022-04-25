@@ -37,8 +37,7 @@ public class Processor {
 		String[] commandLine = lineToRun.split(" ");
 		switch(commandLine[0]) {
 		case "print":
-			String varToPrint = commandLine[1];
-			print(varToPrint);
+			printToScreen(commandLine);
 			break;
 		case "assign":
 			assignVariable(commandLine);			
@@ -61,7 +60,8 @@ public class Processor {
 		}
 	}
 
-	private void print(String varToPrint) {
+	private void printToScreen(String[] commandLine) {
+		String varToPrint = commandLine[1];
 		String varContent = runningProgram.getVariable(varToPrint);
 		System.out.println(varContent);
 	}
