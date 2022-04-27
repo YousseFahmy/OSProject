@@ -37,10 +37,10 @@ public class Processor {
 		String[] commandLine = lineToRun.split(" ");
 		switch(commandLine[0]) {
 		case "print":
-			printToScreen(commandLine);
+			printToScreenCommand(commandLine);
 			break;
 		case "assign":
-			assignVariable(commandLine);			
+			assignVariableCommand(commandLine);			
 			break;
 		case "writeFile":
 			writeFileCommand(commandLine);
@@ -49,24 +49,24 @@ public class Processor {
 			readFileCommand(commandLine);
 			break;
 		case "printFromTo": 
-			printFromTo(commandLine);
+			printFromToCommand(commandLine);
 			break;
 		case "semWait":
-			commandSemWait(commandLine);			
+			semWaitCommand(commandLine);			
 			break;
 		case "semSignal": 
-			commandSemSignal(commandLine);
+			semSignalCommand(commandLine);
 			break;
 		}
 	}
 
-	private void printToScreen(String[] commandLine) {
+	private void printToScreenCommand(String[] commandLine) {
 		String varToPrint = commandLine[1];
 		String varContent = runningProgram.getVariable(varToPrint);
 		System.out.println(varContent);
 	}
 	
-	private void assignVariable(String[] commandLine) {
+	private void assignVariableCommand(String[] commandLine) {
 		String varIdentifier = commandLine[1];
 		String inputMethod = commandLine[2];
 		String varValue;
@@ -119,7 +119,7 @@ public class Processor {
 		}
 	}
 	
-	private void printFromTo(String[] commandLine) {
+	private void printFromToCommand(String[] commandLine) {
 		String firstNumberIdentifier = commandLine[1];
 		int firstNumber = Integer.parseInt(runningProgram.getVariable(firstNumberIdentifier));
 		
@@ -131,7 +131,7 @@ public class Processor {
 		}
 	}
 	
-	private void commandSemWait(String[] commandLine) {
+	private void semWaitCommand(String[] commandLine) {
 		String mutexName = commandLine[1];
 		Mutex mutex = mutexes.get(mutexName);
 		
@@ -153,7 +153,7 @@ public class Processor {
 		return mutex;
 	}
 	
-	private void commandSemSignal(String[] commandLine) {
+	private void semSignalCommand(String[] commandLine) {
 		String mutexName = commandLine[1];
 		Mutex mutex = mutexes.get(mutexName);
 		mutex.semSignal(runningProgram);

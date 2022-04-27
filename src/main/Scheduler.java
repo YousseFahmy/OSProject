@@ -18,15 +18,14 @@ public class Scheduler {
 	private Scanner scanner;
 	
 	private final int TIME_SLICE_AMOUNT = 2;
-	
-	private boolean pausePrinting = true;
+	private final boolean PAUSE_ANALYSIS_PRINTING = false;
 	
 	private Scheduler(){
 		this.readyQueue = new LinkedList<>();
 		this.blockedQueue = new LinkedList<>();
 		this.currentTimeTick = 0;
 		this.toAddTable = new Hashtable<>();
-		scanner = new Scanner(System.in);
+		this.scanner = new Scanner(System.in);
 	}
 	
 	public void run() {
@@ -85,7 +84,7 @@ public class Scheduler {
 		System.out.println("Blocked Queue:");
 		System.out.println(blockedQueue);
 		System.out.println("#################");
-		if(pausePrinting) scanner.nextLine();
+		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
 	}
 	
 	public void addProgram(Program program, int time) {
@@ -115,7 +114,6 @@ public class Scheduler {
 	private void finishProgram(Program program) {
 		readyQueue.remove(program);
 		program.finish();
-		//currentTimeTick++;
 	}
 	
 	public boolean finishedExecuting() {
