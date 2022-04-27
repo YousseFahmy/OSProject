@@ -67,6 +67,7 @@ public class Scheduler {
 			if(programToRun != null) readyQueue.addLast(programToRun);
 		}catch (ProgramBlockedException e) {
 			blockProgram(programToRun);
+			currentTimeTick++;
 		}catch (ProgramFinishedException e) {
 			finishProgram(programToRun);
 		}
@@ -108,7 +109,6 @@ public class Scheduler {
 	private void blockProgram(Program program) {
 		blockedQueue.add(program);
 		program.block();
-		currentTimeTick++;
 	}
 	
 	private void finishProgram(Program program) {
