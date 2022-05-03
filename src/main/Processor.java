@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Scanner;
+import java.util.Set;
 
 import exceptions.ProgramBlockedException;
 
@@ -27,6 +28,7 @@ public class Processor {
 	}
 	
 	public void run(Program program) {
+		if(program == null) return;
 		this.runningProgram = program;
 		String lineToRun = program.getNextInstructionAndIncrement();
 		execute(lineToRun);
@@ -157,6 +159,15 @@ public class Processor {
 		String mutexName = commandLine[1];
 		Mutex mutex = mutexes.get(mutexName);
 		mutex.semSignal(runningProgram);
+	}
+
+	public void releaseHeldMutexes(Program programToReleaseMutexes) {
+		Set<String> mutexNameSet = mutexes.keySet();
+		for(String mutexName : mutexNameSet) {
+			Mutex mutex = mutexes.get(mutexName);
+			if(mutex.isHolder(programToReleaseMutexes)) mutex.semSignal(programToReleaseMutexes);
+		}
+		
 	}
 	
 }

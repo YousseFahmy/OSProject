@@ -59,4 +59,8 @@ public class Mutex {
 	public boolean isAvailable() {
 		return this.available;
 	}
+	
+	public boolean isHolder(Program program) {
+		return program.equals(holder);
+	}
 }

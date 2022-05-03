@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import exceptions.ProgramFinishedException;
+import exceptions.VariableDoesNotExistException;
 
 public class Program {
 	private int id;
@@ -68,7 +69,9 @@ public class Program {
 	}
 	
 	public String getVariable(String requestedVarIdentifier){
-		return vars.get(requestedVarIdentifier);
+		String varValue = vars.get(requestedVarIdentifier);
+		if (varValue == null) throw new VariableDoesNotExistException();
+		return varValue;
 	}
 	
 	public void addVariable(String identifier, String value) {

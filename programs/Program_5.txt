@@ -1,0 +1,6 @@
+semWait userInput
+assign name input
+semSignal userInput
+semWait userOutput
+print name
+semSignal userOutput
