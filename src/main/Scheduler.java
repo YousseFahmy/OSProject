@@ -1,13 +1,10 @@
 package main;
 import java.util.Hashtable;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 
-import exceptions.ProgramBlockedException;
-import exceptions.ProgramFinishedException;
-import exceptions.VariableDoesNotExistException;
+import exceptions.*;
 
 public class Scheduler {
 
@@ -32,9 +29,16 @@ public class Scheduler {
 	
 	public void run() {
 		checkProgramsToAdd();
-		do {
+		 while(!this.finishedExecuting()) {
 			runSlice();
-		} while(!this.finishedExecuting());
+		}
+		printTerminationMessage();
+	}
+
+	private void printTerminationMessage() {
+		System.out.println("!!!!!!!!!!!!!!!!!!");
+		System.out.println("No More Jobs. Terminating OS.");
+		System.out.println("!!!!!!!!!!!!!!!!!!");
 	}
 
 	private void checkProgramsToAdd() {
@@ -50,20 +54,13 @@ public class Scheduler {
 	}
 
 	private void runSlice() {
-		Program programToRun;
-		
-		try {
-			programToRun = readyQueue.removeFirst();
-		} catch (NoSuchElementException e) {
-			programToRun = null;
-			currentTimeTick++;
-		}
+		Program programToRun = retrieveProgramToRun();
 		
 		try {
 			for(int tick = 0; tick < TIME_SLICE_AMOUNT; tick++) {
 				checkProgramsToAdd();
 				printSliceAnalysis(programToRun);
-				if(programToRun != null) processor.run(programToRun);
+				processor.run(programToRun);
 				currentTimeTick++;
 			}
 			if(programToRun != null) readyQueue.addLast(programToRun);
@@ -79,19 +76,21 @@ public class Scheduler {
 			currentTimeTick++;
 		}
 	}
-	
-	private void releaseHeldMutexes(Program programToRun) {
-		processor.releaseHeldMutexes(programToRun);
+
+	private Program retrieveProgramToRun() {
+		return readyQueue.pollFirst();
 	}
 	
-	private void printErrorMessage(Program errorProgram, VariableDoesNotExistException e) {
+	private void releaseHeldMutexes(Program programToReleaseMutexes) {
+		processor.releaseHeldMutexes(programToReleaseMutexes);
+	}
+	
+	private void printErrorMessage(Program errorProgram, OSException thrownException) {
 		String programName = errorProgram.getName();
-		String currentlyRunningInstruction = errorProgram.getNextInstruction();
 		System.out.println("#################");
-		System.out.println("Error Occured: " + e.getClass().getSimpleName());
+		System.out.println("Error Occured: " + thrownException.getClass().getSimpleName());
 		System.out.println("Current Tick: " + currentTimeTick);
 		System.out.println("Current Program: " + programName);
-		System.out.println("Current Instruction: " + currentlyRunningInstruction);
 		System.out.println("#################");
 		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
 		

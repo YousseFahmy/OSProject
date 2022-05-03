@@ -28,6 +28,7 @@ public class Processor {
 	}
 	
 	public void run(Program program) {
+		if(program == null) return;
 		this.runningProgram = program;
 		String lineToRun = program.getNextInstructionAndIncrement();
 		execute(lineToRun);

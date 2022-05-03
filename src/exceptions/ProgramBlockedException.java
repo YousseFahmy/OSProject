@@ -1,6 +1,6 @@
 package exceptions;
 
-public class ProgramBlockedException extends RuntimeException {
+public class ProgramBlockedException extends OSException {
 
 	public ProgramBlockedException(){
 		super();

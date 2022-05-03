@@ -1,6 +1,6 @@
 package exceptions;
 
-public class VariableDoesNotExistException extends RuntimeException {
+public class VariableDoesNotExistException extends OSException {
 
 	public VariableDoesNotExistException() {
 		super();

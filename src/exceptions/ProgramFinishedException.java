@@ -1,6 +1,6 @@
 package exceptions;
 
-public class ProgramFinishedException extends RuntimeException {
+public class ProgramFinishedException extends OSException {
 	
 	public ProgramFinishedException(){
 		super();
