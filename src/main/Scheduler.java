@@ -3,9 +3,11 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Set;
 
 import exceptions.ProgramBlockedException;
 import exceptions.ProgramFinishedException;
+import exceptions.VariableDoesNotExistException;
 
 public class Scheduler {
 
@@ -18,7 +20,7 @@ public class Scheduler {
 	private Scanner scanner;
 	
 	private final int TIME_SLICE_AMOUNT = 2;
-	private final boolean PAUSE_ANALYSIS_PRINTING = false;
+	private final boolean PAUSE_ANALYSIS_PRINTING = true;
 	
 	private Scheduler(){
 		this.readyQueue = new LinkedList<>();
@@ -70,9 +72,31 @@ public class Scheduler {
 			currentTimeTick++;
 		}catch (ProgramFinishedException e) {
 			finishProgram(programToRun);
+		}catch (VariableDoesNotExistException e) {
+			releaseHeldMutexes(programToRun);
+			finishProgram(programToRun);
+			printErrorMessage(programToRun, e);
+			currentTimeTick++;
 		}
 	}
 	
+	private void releaseHeldMutexes(Program programToRun) {
+		processor.releaseHeldMutexes(programToRun);
+	}
+	
+	private void printErrorMessage(Program errorProgram, VariableDoesNotExistException e) {
+		String programName = errorProgram.getName();
+		String currentlyRunningInstruction = errorProgram.getNextInstruction();
+		System.out.println("#################");
+		System.out.println("Error Occured: " + e.getClass().getSimpleName());
+		System.out.println("Current Tick: " + currentTimeTick);
+		System.out.println("Current Program: " + programName);
+		System.out.println("Current Instruction: " + currentlyRunningInstruction);
+		System.out.println("#################");
+		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
+		
+	}
+
 	private void printSliceAnalysis(Program runningProgram) {
 		String programName = runningProgram == null ? "None" : runningProgram.getName();
 		String currentlyRunningInstruction = runningProgram == null ? "None" : runningProgram.getNextInstruction();
@@ -117,9 +141,17 @@ public class Scheduler {
 	}
 	
 	public boolean finishedExecuting() {
-		return this.readyQueue.isEmpty() && this.blockedQueue.isEmpty();
+		return this.readyQueue.isEmpty() && this.blockedQueue.isEmpty() && toAddTableIsEmpty();
 	}
 	
+	private boolean toAddTableIsEmpty() {
+		Set<Integer> keySet = toAddTable.keySet();
+		for(int key : keySet) {
+			if(!toAddTable.get(key).isEmpty()) return false;
+		}
+		return true;
+	}
+
 	public int getAndIncrementTimeTick() {
 		return currentTimeTick++;
 	}
