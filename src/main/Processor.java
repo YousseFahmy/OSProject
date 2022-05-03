@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
 
+import exceptions.InvalidArgumentException;
 import exceptions.ProgramBlockedException;
 
 public class Processor {
@@ -27,6 +28,15 @@ public class Processor {
 		mutexes.put("userOutput", new Mutex("userOutput"));
 	}
 	
+	public void releaseHeldMutexes(Program programToReleaseMutexes) {
+		Set<String> mutexNameSet = mutexes.keySet();
+		for(String mutexName : mutexNameSet) {
+			Mutex mutex = mutexes.get(mutexName);
+			if(mutex.isHolder(programToReleaseMutexes)) mutex.semSignal(programToReleaseMutexes);
+		}
+		
+	}
+
 	public void run(Program program) {
 		if(program == null) return;
 		this.runningProgram = program;
@@ -122,11 +132,17 @@ public class Processor {
 	}
 	
 	private void printFromToCommand(String[] commandLine) {
-		String firstNumberIdentifier = commandLine[1];
-		int firstNumber = Integer.parseInt(runningProgram.getVariable(firstNumberIdentifier));
-		
+		String firstNumberIdentifier = commandLine[1];		
 		String secondNumberIdentifier = commandLine[2];
-		int secondNumber = Integer.parseInt(runningProgram.getVariable(secondNumberIdentifier));
+		
+		int firstNumber, secondNumber;
+		
+		try {
+			firstNumber = Integer.parseInt(runningProgram.getVariable(firstNumberIdentifier));
+			secondNumber = Integer.parseInt(runningProgram.getVariable(secondNumberIdentifier));
+		} catch (NumberFormatException e){
+			throw new InvalidArgumentException();
+		}
 		
 		for(int i = firstNumber; i <= secondNumber; i++) {
 			System.out.println(i);
@@ -159,15 +175,6 @@ public class Processor {
 		String mutexName = commandLine[1];
 		Mutex mutex = mutexes.get(mutexName);
 		mutex.semSignal(runningProgram);
-	}
-
-	public void releaseHeldMutexes(Program programToReleaseMutexes) {
-		Set<String> mutexNameSet = mutexes.keySet();
-		for(String mutexName : mutexNameSet) {
-			Mutex mutex = mutexes.get(mutexName);
-			if(mutex.isHolder(programToReleaseMutexes)) mutex.semSignal(programToReleaseMutexes);
-		}
-		
 	}
 	
 }

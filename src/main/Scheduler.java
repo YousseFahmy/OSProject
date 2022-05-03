@@ -27,18 +27,42 @@ public class Scheduler {
 		this.scanner = new Scanner(System.in);
 	}
 	
+	public static Scheduler getSchedulerInstance() {
+		if(instance == null) {
+			instance = new Scheduler();
+			instance.initialiseProcessor();
+		}
+		return instance;
+	}
+
+	private void initialiseProcessor() {
+		this.processor = new Processor();
+	}
+
+	public void addProgram(Program program, int time) {
+		LinkedList<Program> exisitingList = toAddTable.get(time);
+		if(exisitingList != null) {
+			exisitingList.add(program);
+		}else {
+			exisitingList = new LinkedList<>();
+			exisitingList.add(program);
+			toAddTable.put(time, exisitingList);
+		}
+		
+	}
+
+	public void readyProgram(Program program) {
+		blockedQueue.remove(program);
+		program.ready();
+		readyQueue.add(program);
+	}
+
 	public void run() {
 		checkProgramsToAdd();
 		 while(!this.finishedExecuting()) {
 			runSlice();
 		}
 		printTerminationMessage();
-	}
-
-	private void printTerminationMessage() {
-		System.out.println("!!!!!!!!!!!!!!!!!!");
-		System.out.println("No More Jobs. Terminating OS.");
-		System.out.println("!!!!!!!!!!!!!!!!!!");
 	}
 
 	private void checkProgramsToAdd() {
@@ -48,9 +72,21 @@ public class Scheduler {
 			toAddNowList.clear();
 		}
 	}
-	
+
 	private void addProgram(Program program) {
 		readyQueue.add(program);
+	}
+
+	private boolean finishedExecuting() {
+		return this.readyQueue.isEmpty() && this.blockedQueue.isEmpty() && toAddTableIsEmpty();
+	}
+
+	private boolean toAddTableIsEmpty() {
+		Set<Integer> keySet = toAddTable.keySet();
+		for(int key : keySet) {
+			if(!toAddTable.get(key).isEmpty()) return false;
+		}
+		return true;
 	}
 
 	private void runSlice() {
@@ -62,6 +98,7 @@ public class Scheduler {
 				printSliceAnalysis(programToRun);
 				processor.run(programToRun);
 				currentTimeTick++;
+				if(programToRun == null) break;
 			}
 			if(programToRun != null) readyQueue.addLast(programToRun);
 		}catch (ProgramBlockedException e) {
@@ -69,9 +106,9 @@ public class Scheduler {
 			currentTimeTick++;
 		}catch (ProgramFinishedException e) {
 			finishProgram(programToRun);
-		}catch (VariableDoesNotExistException e) {
-			releaseHeldMutexes(programToRun);
+		}catch (OSException e) {
 			finishProgram(programToRun);
+			releaseHeldMutexes(programToRun);
 			printErrorMessage(programToRun, e);
 			currentTimeTick++;
 		}
@@ -79,21 +116,6 @@ public class Scheduler {
 
 	private Program retrieveProgramToRun() {
 		return readyQueue.pollFirst();
-	}
-	
-	private void releaseHeldMutexes(Program programToReleaseMutexes) {
-		processor.releaseHeldMutexes(programToReleaseMutexes);
-	}
-	
-	private void printErrorMessage(Program errorProgram, OSException thrownException) {
-		String programName = errorProgram.getName();
-		System.out.println("#################");
-		System.out.println("Error Occured: " + thrownException.getClass().getSimpleName());
-		System.out.println("Current Tick: " + currentTimeTick);
-		System.out.println("Current Program: " + programName);
-		System.out.println("#################");
-		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
-		
 	}
 
 	private void printSliceAnalysis(Program runningProgram) {
@@ -110,61 +132,36 @@ public class Scheduler {
 		System.out.println("#################");
 		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
 	}
-	
-	public void addProgram(Program program, int time) {
-		LinkedList<Program> exisitingList = toAddTable.get(time);
-		if(exisitingList != null) {
-			exisitingList.add(program);
-		}else {
-			exisitingList = new LinkedList<>();
-			exisitingList.add(program);
-			toAddTable.put(time, exisitingList);
-		}
-		
-	}
-	
-	public void readyProgram(Program program) {
-		blockedQueue.remove(program);
-		program.ready();
-		readyQueue.add(program);
-	}
-	
+
 	private void blockProgram(Program program) {
 		blockedQueue.add(program);
 		program.block();
 	}
-	
+
 	private void finishProgram(Program program) {
 		readyQueue.remove(program);
 		program.finish();
 	}
-	
-	public boolean finishedExecuting() {
-		return this.readyQueue.isEmpty() && this.blockedQueue.isEmpty() && toAddTableIsEmpty();
+
+	private void releaseHeldMutexes(Program programToReleaseMutexes) {
+		processor.releaseHeldMutexes(programToReleaseMutexes);
 	}
 	
-	private boolean toAddTableIsEmpty() {
-		Set<Integer> keySet = toAddTable.keySet();
-		for(int key : keySet) {
-			if(!toAddTable.get(key).isEmpty()) return false;
-		}
-		return true;
+	private void printErrorMessage(Program errorProgram, OSException thrownException) {
+		String programName = errorProgram.getName();
+		System.out.println("#################");
+		System.out.println("Error Occured: " + thrownException.getClass().getSimpleName());
+		System.out.println("Current Tick: " + currentTimeTick);
+		System.out.println("Current Program: " + programName);
+		System.out.println("#################");
+		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
+		
 	}
 
-	public int getAndIncrementTimeTick() {
-		return currentTimeTick++;
-	}
-	
-	public static Scheduler getSchedulerInstance() {
-		if(instance == null) {
-			instance = new Scheduler();
-			instance.initialiseProcessor();
-		}
-		return instance;
-	}
-	
-	private void initialiseProcessor() {
-		this.processor = new Processor();
+	private void printTerminationMessage() {
+		System.out.println("!!!!!!!!!!!!!!!!!!");
+		System.out.println("No More Jobs. Terminating OS.");
+		System.out.println("!!!!!!!!!!!!!!!!!!");
 	}
 	
 }

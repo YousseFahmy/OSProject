@@ -11,11 +11,11 @@ public class Main {
 		
 		Scheduler scheduler = Scheduler.getSchedulerInstance();
 		
-		//scheduler.addProgram(prog1, 2);
+		scheduler.addProgram(prog1, 2);
 		//scheduler.addProgram(prog2, 1);
 		//scheduler.addProgram(prog3, 4);
 		//scheduler.addProgram(prog4, 1);
-		scheduler.addProgram(prog5, 20);
+		//scheduler.addProgram(prog5, 20);
 		
 		scheduler.run();
 		
