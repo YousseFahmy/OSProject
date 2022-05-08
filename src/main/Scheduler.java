@@ -8,16 +8,17 @@ import exceptions.*;
 
 public class Scheduler {
 
+	private static final int TIME_SLICE_AMOUNT = 2;
+	private static final boolean PAUSE_ANALYSIS_PRINTING = false;
+	
 	private static Scheduler instance;
+	
 	private LinkedList<Program> readyQueue;
 	private LinkedList<Program> blockedQueue;
 	private int currentTimeTick;
 	private Processor processor;
 	private Hashtable<Integer, LinkedList<Program>> toAddTable;
 	private Scanner scanner;
-	
-	private final int TIME_SLICE_AMOUNT = 2;
-	private final boolean PAUSE_ANALYSIS_PRINTING = true;
 	
 	private Scheduler(){
 		this.readyQueue = new LinkedList<>();

@@ -1,0 +1,8 @@
+semWait userInput
+assign a "thisIsMyString"
+assign b 7
+semSignal userInput
+semWait userOutput
+print a
+print b
+semSignal userOutput
