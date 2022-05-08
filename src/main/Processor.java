@@ -60,13 +60,13 @@ public class Processor {
 		case "readFile":
 			readFileCommand(commandLine);
 			break;
-		case "printFromTo": 
+		case "printFromTo":
 			printFromToCommand(commandLine);
 			break;
 		case "semWait":
 			semWaitCommand(commandLine);			
 			break;
-		case "semSignal": 
+		case "semSignal":
 			semSignalCommand(commandLine);
 			break;
 		}
@@ -88,12 +88,25 @@ public class Processor {
 		}else if(inputMethod.equals("readFile")) {
 			String newCommand = "readFile " + commandLine[3];
 			varValue = readFileCommand(newCommand.split(" "));
-		}else {
+		}else if(inputMethod.charAt(0) == '\"'){
+			varValue = inputMethod.substring(1, inputMethod.length() - 1);
+		}else if(isNumber(inputMethod)){
 			varValue = inputMethod;
+		}else {
+			varValue = runningProgram.getVariable("temp");
 		}
 		
 		runningProgram.addVariable(varIdentifier, varValue);
 		
+	}
+
+	private boolean isNumber(String numberString) {
+		try {
+			Integer.parseInt(numberString);
+		}catch(NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private String inputFromUser() {

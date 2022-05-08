@@ -26,19 +26,33 @@ public class Program {
 		this.nextInstruction = 0;
 		this.vars = new Hashtable<>();
 		this.code = new ArrayList<>();
-		readProgramCode(fileName);
+		parseProgramCode(fileName);
 	}
 
-	private void readProgramCode(String fileName) {
+	private void parseProgramCode(String fileName) {
 		String filePath = "programs" + File.separator + fileName;
 		try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
 			String line;
 			while((line = reader.readLine()) != null) {
-				code.add(line);
+				parseAndAdd(line);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void parseAndAdd(String line) {
+		String[] splitLine = line.split(" ");
+		if(splitLine[0].equals("assign")) {
+			if(splitLine[2].equals("readFile")) {
+				String firstInstruction = "assign temp readFile " + splitLine[3];
+				String secondInstruction = "assign " + splitLine[1] + " temp";
+				code.add(firstInstruction);
+				code.add(secondInstruction);
+				return;
+			}
+		}
+		code.add(line);
 	}
 	
 	public String getNextInstruction() {
