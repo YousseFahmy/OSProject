@@ -43,16 +43,19 @@ public class Program {
 
 	private void parseAndAdd(String line) {
 		String[] splitLine = line.split(" ");
-		if(splitLine[0].equals("assign")) {
-			if(splitLine[2].equals("readFile")) {
-				String firstInstruction = "assign temp readFile " + splitLine[3];
-				String secondInstruction = "assign " + splitLine[1] + " temp";
-				code.add(firstInstruction);
-				code.add(secondInstruction);
-				return;
-			}
+		if(!splitLine[0].equals("assign")) {
+			code.add(line); return;
 		}
-		code.add(line);
+		
+		if(!splitLine[2].equals("readFile")) {
+			code.add(line);
+			return;
+		}
+		
+		String firstInstruction = "assign temp readFile " + splitLine[3];
+		String secondInstruction = "assign " + splitLine[1] + " temp";
+		code.add(firstInstruction);
+		code.add(secondInstruction);
 	}
 	
 	public String getNextInstruction() {
