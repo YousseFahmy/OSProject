@@ -9,7 +9,7 @@ import exceptions.*;
 public class Scheduler {
 
 	private static final int TIME_SLICE_AMOUNT = 2;
-	private static final boolean PAUSE_ANALYSIS_PRINTING = false;
+	private static final boolean PAUSE_ANALYSIS_PRINTING = true;
 	
 	private static Scheduler instance;
 	

@@ -1,11 +1,5 @@
 package main;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Scanner;
 import java.util.Set;
 
 import exceptions.InvalidArgumentException;
@@ -15,10 +9,9 @@ public class Processor {
 
 	private Hashtable<String, Mutex> mutexes;
 	private Program runningProgram;
-	private Scanner scanner;
+	private int runningProgramId;
 	
 	public Processor() {
-		this.scanner = new Scanner(System.in);
 		initialiseSystemMutexes();
 	}
 
@@ -40,6 +33,7 @@ public class Processor {
 	public void run(Program program) {
 		if(program == null) return;
 		this.runningProgram = program;
+		this.runningProgramId = program.getID();
 		String lineToRun = program.getNextInstructionAndIncrement();
 		execute(lineToRun);
 		this.runningProgram = null;
@@ -74,8 +68,8 @@ public class Processor {
 
 	private void printToScreenCommand(String[] commandLine) {
 		String varToPrint = commandLine[1];
-		String varContent = runningProgram.getVariable(varToPrint);
-		System.out.println(varContent);
+		String varContent = SystemCalls.getProcessVariable(runningProgramId, varToPrint);
+		SystemCalls.outputToScreen(varContent);
 	}
 	
 	private void assignVariableCommand(String[] commandLine) {
@@ -88,60 +82,31 @@ public class Processor {
 		}else if(inputMethod.equals("readFile")) {
 			String newCommand = "readFile " + commandLine[3];
 			varValue = readFileCommand(newCommand.split(" "));
-		}else if(inputMethod.charAt(0) == '\"'){
-			varValue = inputMethod.substring(1, inputMethod.length() - 1);
-		}else if(isNumber(inputMethod)){
-			varValue = inputMethod;
 		}else {
-			varValue = runningProgram.getVariable("temp");
+			varValue = SystemCalls.getProcessVariable(runningProgramId, "temp");
 		}
-		
-		runningProgram.addVariable(varIdentifier, varValue);
-		
-	}
 
-	private boolean isNumber(String numberString) {
-		try {
-			Integer.parseInt(numberString);
-		}catch(NumberFormatException e) {
-			return false;
-		}
-		return true;
+		SystemCalls.setProcessVariable(runningProgramId, varIdentifier, varValue);
+		
 	}
 
 	private String inputFromUser() {
-		System.out.print("Please enter a value > ");
-		return scanner.nextLine();
+		SystemCalls.outputToScreen("Please enter a value > ");
+		return SystemCalls.getInputFromUser();
 	}
 
 	private void writeFileCommand(String[] commandLine) {
 		String fileNameIdentifier = commandLine[1];
-		String fileName = runningProgram.getVariable(fileNameIdentifier);
-		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))){
-			String contentVarIdentifier = commandLine[2];
-			String content = runningProgram.getVariable(contentVarIdentifier);
-			writer.write(content);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String fileName = SystemCalls.getProcessVariable(runningProgramId, fileNameIdentifier);
+		String contentVarIdentifier = commandLine[2];
+		String content = SystemCalls.getProcessVariable(runningProgramId, contentVarIdentifier);
+		SystemCalls.writeFile(fileName, content);
 	}
 	
 	private String readFileCommand(String[] commandLine) {
 		String fileNameIdentifier = commandLine[1];
-		String fileName = runningProgram.getVariable(fileNameIdentifier);
-		try(BufferedReader reader = new BufferedReader(new FileReader(fileName))){
-			StringBuilder fileContent = new StringBuilder();
-			String line;
-			
-			while((line = reader.readLine()) != null) {
-				fileContent.append(line);
-			}
-			
-			return fileContent.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
+		String fileName = SystemCalls.getProcessVariable(runningProgramId, fileNameIdentifier);
+		return SystemCalls.readFile(fileName);
 	}
 	
 	private void printFromToCommand(String[] commandLine) {
@@ -151,14 +116,14 @@ public class Processor {
 		int firstNumber, secondNumber;
 		
 		try {
-			firstNumber = Integer.parseInt(runningProgram.getVariable(firstNumberIdentifier));
-			secondNumber = Integer.parseInt(runningProgram.getVariable(secondNumberIdentifier));
+			firstNumber = Integer.parseInt(SystemCalls.getProcessVariable(runningProgramId, firstNumberIdentifier));
+			secondNumber = Integer.parseInt(SystemCalls.getProcessVariable(runningProgramId, secondNumberIdentifier));
 		} catch (NumberFormatException e){
 			throw new InvalidArgumentException();
 		}
 		
 		for(int i = firstNumber; i <= secondNumber; i++) {
-			System.out.println(i);
+			SystemCalls.outputToScreen(i);
 		}
 	}
 	

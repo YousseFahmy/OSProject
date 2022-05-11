@@ -26,6 +26,7 @@ public class Program {
 		this.nextInstruction = 0;
 		this.vars = new Hashtable<>();
 		this.code = new ArrayList<>();
+		SystemCalls.reserveProgramMemory(this);
 		parseProgramCode(fileName);
 	}
 
@@ -47,12 +48,15 @@ public class Program {
 			code.add(line); return;
 		}
 		
-		if(!splitLine[2].equals("readFile")) {
-			code.add(line);
-			return;
+		String inputMethod = splitLine[2];
+		String firstInstruction;
+
+		if(inputMethod.equals("input")){
+			firstInstruction = "assign temp " + splitLine[2];
+		}else{
+			firstInstruction = "assign temp readFile " + splitLine[3];
 		}
-		
-		String firstInstruction = "assign temp readFile " + splitLine[3];
+
 		String secondInstruction = "assign " + splitLine[1] + " temp";
 		code.add(firstInstruction);
 		code.add(secondInstruction);
