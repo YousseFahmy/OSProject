@@ -57,8 +57,4 @@ public class SystemCalls {
         System.out.println(content);
     }
 
-
-    // TODO Input from user
-    // TODO Output to screen
-
 }
