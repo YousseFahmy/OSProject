@@ -60,7 +60,7 @@ public class Scheduler {
 
 	public void run() {
 		checkProgramsToAdd();
-		 while(!this.finishedExecuting()) {
+		while(!this.finishedExecuting()) {
 			runSlice();
 		}
 		printTerminationMessage();
