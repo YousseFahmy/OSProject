@@ -78,7 +78,6 @@ public class Program {
 	
 	public void block() {
 		this.state = State.BLOCKED;
-		decrementNextInstructionCounter();
 	}
 	
 	public void ready() {
@@ -97,10 +96,6 @@ public class Program {
 	
 	public void addVariable(String identifier, String value) {
 		vars.put(identifier, value);
-	}
-	
-	private void decrementNextInstructionCounter() {
-		nextInstruction--;
 	}
 	
 	public int getID() {
