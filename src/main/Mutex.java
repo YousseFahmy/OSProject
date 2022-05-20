@@ -28,7 +28,7 @@ public class Mutex {
 	public void semSignal(Program releaser) {
 		if (validSignal(releaser)) {
 			releaseMutex();
-			if (!this.blockedList.isEmpty()) releaseNextWaiting();
+			if (!this.blockedList.isEmpty()) releaseNextWaitingProgram();
 		}
 	}
 
@@ -41,8 +41,8 @@ public class Mutex {
 		this.available = true;
 	}
 
-	private void releaseNextWaiting() {
-		Program readiedProgram = this.blockedList.poll();
+	private void releaseNextWaitingProgram() {
+		Program readiedProgram = this.blockedList.remove();
 		scheduler.readyProgram(readiedProgram);
 	}
 
