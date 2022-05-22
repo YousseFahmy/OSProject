@@ -10,9 +10,10 @@ import java.util.Scanner;
 public class SystemCalls {
 
     private static Scanner scanner = new Scanner(System.in);
+    private static Memory memory = Memory.getMemoryInstance();
 
-    public static void reserveProgramMemory(Program program){
-        Memory.getMemoryInstance().reserveMemory(program);
+    public static void loadToMemory(Program program){
+        memory.loadToMemory(program);
     }
 
     public static String readFile(String fileName){
@@ -40,12 +41,10 @@ public class SystemCalls {
     }
 
     public static String getProcessVariable(int processId, String varIdentifier){
-        Memory memory = Memory.getMemoryInstance();
         return memory.getVariable(processId, varIdentifier);
     }
 
     public static void setProcessVariable(int processId, String varIdentifier, String varValue){
-        Memory memory = Memory.getMemoryInstance();
         memory.setVariable(processId, varIdentifier, varValue);
     }
 

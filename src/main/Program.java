@@ -16,7 +16,7 @@ public class Program {
 		this.name = fileName;
 		this.code = new ArrayList<>();
 		this.pcb = new PCB();
-		SystemCalls.reserveProgramMemory(this);
+		SystemCalls.loadToMemory(this);
 		parseProgramCode(fileName);
 	}
 
@@ -80,17 +80,27 @@ public class Program {
 	}
 	
 	public int getID() {
-		return this.pcb.getProcessId();
+		return this.pcb.getProgramId();
 	}
 	
 	public String getName() {
 		return this.name;
 	}
 	
-	@Override
-	public String toString() {
-		return "ID: " + this.pcb.getProcessId() + " Program: " + this.name;
+	public int getMemoryLowerBound(){
+		return this.pcb.getLowerMemoryBound();
 	}
 
-	
+	public int getMemoryUpperBound(){
+		return this.pcb.getUpperMemoryBound();
+	}
+
+	public int getMemorySize(){
+		return this.pcb.getMemorySize();
+	}
+
+	@Override
+	public String toString() {
+		return "ID: " + this.pcb.getProgramId() + " Program: " + this.name;
+	}
 }

@@ -1,22 +1,28 @@
 package main;
 
 public class PCB {
+    public static final int SIZE_IN_MEMORY = 5;
+
     private static int nextProcessId = 1;
 
-    private int processId;
+    private int programId;
     private State currentState;
     private int programCounter;
     private int lowerMemoryBound;
     private int upperMemoryBound;
 
     public PCB(){
-        this.processId = nextProcessId++;
+        this.programId = nextProcessId++;
         this.currentState = State.READY;
         this.programCounter = 0;
     }
 
-    public int getProcessId(){
-        return this.processId;
+    public int getMemorySize(){
+        return upperMemoryBound - lowerMemoryBound;
+    }
+
+    public int getProgramId(){
+        return this.programId;
     }
 
     public State getCurrentState(){
@@ -34,4 +40,14 @@ public class PCB {
     public void incrementProgramCounter(){
         programCounter++;
     }
+
+    public int getLowerMemoryBound() {
+        return lowerMemoryBound;
+    }
+
+    public int getUpperMemoryBound() {
+        return upperMemoryBound;
+    }
+
+    
 }
