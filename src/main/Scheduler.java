@@ -9,7 +9,7 @@ import exceptions.*;
 public class Scheduler {
 
 	private static final int TIME_SLICE_AMOUNT = 2;
-	private static final boolean PAUSE_ANALYSIS_PRINTING = true;
+	private static final boolean PAUSE_ANALYSIS_PRINTING = false;
 	
 	private static Scheduler instance;
 	
@@ -17,7 +17,7 @@ public class Scheduler {
 	private LinkedList<Program> blockedQueue;
 	private int currentTimeTick;
 	private Processor processor;
-	private Hashtable<Integer, LinkedList<Program>> toAddTable;
+	private Hashtable<Integer, LinkedList<String>> toAddTable;
 	private Scanner scanner;
 	
 	private Scheduler(){
@@ -40,13 +40,13 @@ public class Scheduler {
 		this.processor = new Processor();
 	}
 
-	public void addProgram(Program program, int time) {
-		LinkedList<Program> exisitingList = toAddTable.get(time);
+	public void addProgram(String programName, int time) {
+		LinkedList<String> exisitingList = toAddTable.get(time);
 		if(exisitingList != null) {
-			exisitingList.add(program);
+			exisitingList.add(programName);
 		}else {
 			exisitingList = new LinkedList<>();
-			exisitingList.add(program);
+			exisitingList.add(programName);
 			toAddTable.put(time, exisitingList);
 		}
 		
@@ -67,15 +67,15 @@ public class Scheduler {
 	}
 
 	private void checkProgramsToAdd() {
-		LinkedList<Program> toAddNowList = toAddTable.get(currentTimeTick);
+		LinkedList<String> toAddNowList = toAddTable.get(currentTimeTick);
 		if(toAddNowList != null) {
-			for(Program programToAdd : toAddNowList) addProgram(programToAdd);
+			for(String programToAdd : toAddNowList) addProgram(programToAdd);
 			toAddNowList.clear();
 		}
 	}
 
-	private void addProgram(Program program) {
-		readyQueue.add(program);
+	private void addProgram(String programName) {
+		readyQueue.add(new Program(programName));
 	}
 
 	private boolean finishedExecuting() {

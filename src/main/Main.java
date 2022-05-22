@@ -2,21 +2,14 @@ package main;
 
 public class Main {
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		Program prog1 = new Program("Program_1.txt"); // PrintFromTo
-		Program prog2 = new Program("Program_2.txt"); // Write To File
-		Program prog3 = new Program("Program_3.txt"); // Read From File
-		Program prog4 = new Program("Program_4.txt"); // Throw VariableDoesNotExistException
-		Program prog5 = new Program("Program_5.txt"); // Simple IO
-
 		Scheduler scheduler = Scheduler.getSchedulerInstance();
 
-		scheduler.addProgram(prog1, 0);
-		scheduler.addProgram(prog2, 1);
-		scheduler.addProgram(prog3, 4);
-		// scheduler.addProgram(prog4, 1);
-		// scheduler.addProgram(prog5, 20);
+		scheduler.addProgram("Program_1.txt", 0); // PrintFromTo
+		scheduler.addProgram("Program_2.txt", 1); // Write To File
+		scheduler.addProgram("Program_3.txt", 4); // Read From File
+		// scheduler.addProgram("Program_4.txt", 1); // Throw VariableDoesNotExistException
+		// scheduler.addProgram("Program_5.txt", 20); // Simple IO
 
 		scheduler.run();
 
