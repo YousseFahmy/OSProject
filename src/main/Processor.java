@@ -4,6 +4,7 @@ import java.util.Set;
 
 import exceptions.InvalidArgumentException;
 import exceptions.ProgramBlockedException;
+import exceptions.ProgramFinishedException;
 
 public class Processor {
 
@@ -63,6 +64,8 @@ public class Processor {
 		case "semSignal":
 			semSignalCommand(commandLine);
 			break;
+		case "end":
+			throw new ProgramFinishedException();
 		}
 	}
 
@@ -100,6 +103,7 @@ public class Processor {
 		String fileName = SystemCalls.getProcessVariable(runningProgramId, fileNameIdentifier);
 		String contentVarIdentifier = commandLine[2];
 		String content = SystemCalls.getProcessVariable(runningProgramId, contentVarIdentifier);
+		if(content.equals("temp")) content = SystemCalls.getProcessVariable(runningProgramId, "temp");
 		SystemCalls.writeFile(fileName, content);
 	}
 	

@@ -40,6 +40,14 @@ public class SystemCalls {
 		}
     }
 
+    public static void writeInMemory(int memLocation, MemoryWord memoryWord){
+        memory.put(memLocation, memoryWord);
+    }
+
+    public static String getFromMemory(String varName){
+        return memory.findInMemory(varName);
+    }
+
     public static String getProcessVariable(int processId, String varIdentifier){
         return memory.getVariable(processId, varIdentifier);
     }

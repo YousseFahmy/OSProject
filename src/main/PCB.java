@@ -8,17 +8,17 @@ public class PCB {
     private int programId;
     private State currentState;
     private int programCounter;
-    private int lowerMemoryBound;
-    private int upperMemoryBound;
+    private int memoryLowerBound;
+    private int memoryUpperBound;
 
     public PCB(){
         this.programId = nextProcessId++;
-        this.currentState = State.READY;
+        this.currentState = State.READY_MEMORY;
         this.programCounter = 0;
     }
 
     public int getMemorySize(){
-        return upperMemoryBound - lowerMemoryBound;
+        return memoryUpperBound - memoryLowerBound;
     }
 
     public int getProgramId(){
@@ -41,12 +41,21 @@ public class PCB {
         programCounter++;
     }
 
-    public int getLowerMemoryBound() {
-        return lowerMemoryBound;
+    public int getMemoryLowerBound() {
+        return memoryLowerBound;
     }
 
-    public int getUpperMemoryBound() {
-        return upperMemoryBound;
+    public void setMemoryLowerBound(int memoryLowerBound){
+        this.memoryLowerBound = memoryLowerBound;
+    }
+
+    public int getMemoryUpperBound() {
+        return memoryUpperBound;
+    }
+
+    
+    public void setMemoryUpperBound(int memoryUpperBound){
+        this.memoryUpperBound = memoryUpperBound;
     }
 
     

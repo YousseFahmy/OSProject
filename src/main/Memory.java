@@ -1,13 +1,15 @@
 package main;
 
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
+import exceptions.NotEnoughSpaceException;
 import exceptions.VariableDoesNotExistException;
 
 public class Memory {
     private static final int MEMORY_SIZE = 40;
-    private static final int VARS_PER_PROCESS = 4;
     
     private static Memory instance;
     
@@ -32,54 +34,108 @@ public class Memory {
         // check if program data is already in disk
         // if in disk
         //  load from disk
-        // if not in disk
-        //  setup memory words for program
-        //      set pcb words
-        //      set code words
         //  save in memory
     }
 
-    // TODO implement
-    private boolean spaceAvailable(){
-        return false;
+    public void put(int idx, MemoryWord obj){
+        memory.set(idx, obj);
     }
 
-    // TODO implement
-    private int findProgramToUnload(){
-        return 0;
+    public void put(int startIdx, MemoryWord[] memoryChunk){
+        int currentIdx = startIdx;
+        for(MemoryWord word : memoryChunk){
+            this.put(currentIdx++, word);
+        }
     }
 
-    private void unloadFromMemory(Program program){
-        int programMemoryLowerBound = program.getMemoryLowerBound();
-        int programMemoryUpperBound = program.getMemoryUpperBound();
+    public void ensureSpaceAvailable(int neededCapacity){
+        while(!spaceAvailable(neededCapacity)){
+            unloadFromMemory(findProgramToUnload());
+        }
+    }
 
-        DiskData toUnload = new DiskData();
+    private boolean spaceAvailable(int neededCapacity){
+        int freeSpaceCounter = 0;
+        for(MemoryWord word : memory){
+            if(word == null){
+                freeSpaceCounter++;
+            }else{
+                freeSpaceCounter = 0;
+            }
+        }
+        return freeSpaceCounter >= neededCapacity;
+    }
 
-        for(int memLocation = programMemoryLowerBound; memLocation < programMemoryUpperBound; memLocation++){
-            toUnload.addToData(memory.get(memLocation));
-            removeWordAt(memLocation);
+    public int findSpaceStartIdx(int neededCapacity){
+        int overallBiggestSpace = 0;
+        int overallBiggestSpaceIdx = 0;
+        int currentBiggestSpace = 0;
+        int currentBiggestSpaceIdx = 0;
+        for(int wordIdx = 0; wordIdx < MEMORY_SIZE; wordIdx++){
+            MemoryWord word = memory.get(wordIdx);
+            if(word == null) {
+                currentBiggestSpace++;
+            }else{
+                if(currentBiggestSpace > overallBiggestSpace){
+                    overallBiggestSpace = currentBiggestSpace;
+                    overallBiggestSpaceIdx = currentBiggestSpaceIdx;
+                }
+                currentBiggestSpace = 0;
+                currentBiggestSpaceIdx = wordIdx;
+            }
+        }
+        if(currentBiggestSpace > overallBiggestSpace){
+            overallBiggestSpace = currentBiggestSpace;
+            overallBiggestSpaceIdx = currentBiggestSpaceIdx;
         }
 
-        disk.saveToDisk(program.getID(), toUnload);
+        if(overallBiggestSpace < neededCapacity) throw new NotEnoughSpaceException();
+        return overallBiggestSpaceIdx;
+    }
+
+    private int findProgramToUnload(){
+        Hashtable<Integer, Integer> programSizes = new Hashtable<>();
+        
+        for(MemoryWord word : memory){
+            if(word == null) continue;
+            String[] wordName = word.getName().split("_");
+            int programId = Integer.parseInt(wordName[0]);
+            
+            if(programSizes.get(programId) == null){
+                programSizes.put(programId, 1);
+            }else{
+                programSizes.put(programId, programSizes.get(programId)+1);
+            }
+        }
+
+        Set<Integer> programsInMemory = programSizes.keySet();
+        int biggestSize = 0;
+        int biggestProgram = 0;
+
+        for(int key : programsInMemory){
+            if(programSizes.get(key) > biggestSize) biggestProgram = key;
+        }
+
+        return biggestProgram;
+    }
+
+    private void unloadFromMemory(int programId){
+        DiskData toUnload = new DiskData();
+
+        for(int memLocation = 0; memLocation < MEMORY_SIZE; memLocation++){
+            MemoryWord word = memory.get(memLocation);
+            String[] wordName = word.getName().split("_");
+            int wordProgramId = Integer.parseInt(wordName[0]);    
+            if(programId == wordProgramId){
+                toUnload.addToData(word);
+                removeWordAt(memLocation);
+            }
+        }
+        disk.saveToDisk(programId, toUnload);
     }
 
     private void removeWordAt(int memLocation){
         memory.set(memLocation, null);
-    }
-
-    // TODO implement
-    private void reserveMemory(Program program){
-
-    }
-
-    // TODO implement
-    private void setupPCBChunk(Program program){
-
-    }
-
-    // TODO implement
-    private void setupCodeChunk(Program program){
-
     }
 
     public void setVariable(int programId, String variableIdentifier, String variableValue){
@@ -88,7 +144,7 @@ public class Memory {
         String processMemoryLowerBoundName = programId + "_pcb_memLowerBound";       
         int programMemoryLowerBound = Integer.parseInt(findInMemory(processMemoryLowerBoundName));
         int programVariablesStart = programMemoryLowerBound + PCB.SIZE_IN_MEMORY;
-        int programVariablesEnd = programVariablesStart + VARS_PER_PROCESS;
+        int programVariablesEnd = programVariablesStart + ProgramHandler.VARS_PER_PROGRAM;
 
         for(int memLocation = programVariablesStart; memLocation < programVariablesEnd; memLocation++){
             MemoryWord wordAtLocation = memory.get(memLocation);
@@ -98,7 +154,7 @@ public class Memory {
             }
 
             if(wordAtLocation.getName().equals(memoryWordName)){
-                setInMemory(memLocation, memoryWordName, variableIdentifier);
+                setInMemory(memLocation, memoryWordName, variableValue);
                 return;
             }
         }
@@ -116,7 +172,7 @@ public class Memory {
         return findInMemory(memoryWordName);
     }
 
-    private String findInMemory(String memoryWordName){
+    public String findInMemory(String memoryWordName){
         for(MemoryWord word : memory){
             if(word == null) continue;
             if(word.getName().equals(memoryWordName)) return word.getValue();

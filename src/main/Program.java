@@ -1,64 +1,18 @@
 package main;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import exceptions.ProgramFinishedException;
 
 public class Program {
 	private String name;
-	private ArrayList<String> code;
 	private PCB pcb;
 
-	public Program(String fileName) {
+	public Program(String fileName, PCB programPCB) {
 		this.name = fileName;
-		this.code = new ArrayList<>();
-		this.pcb = new PCB();
-		SystemCalls.loadToMemory(this);
-		parseProgramCode(fileName);
-	}
-
-	private void parseProgramCode(String fileName) {
-		String filePath = "programs" + File.separator + fileName;
-		try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
-			String line;
-			while((line = reader.readLine()) != null) {
-				parseAndAdd(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void parseAndAdd(String line) {
-		String[] splitLine = line.split(" ");
-		if(!splitLine[0].equals("assign")) {
-			code.add(line); return;
-		}
-		
-		String inputMethod = splitLine[2];
-		String firstInstruction;
-
-		if(inputMethod.equals("input")){
-			firstInstruction = "assign temp " + splitLine[2];
-		}else{
-			firstInstruction = "assign temp readFile " + splitLine[3];
-		}
-
-		String secondInstruction = "assign " + splitLine[1] + " temp";
-		code.add(firstInstruction);
-		code.add(secondInstruction);
+		this.pcb = programPCB;
 	}
 	
 	public String getNextInstruction() {
 		int nextInstructionCounter = pcb.getProgramCounter();
-		if(nextInstructionCounter == code.size()) {
-			throw new ProgramFinishedException();
-		}
-		
-		return code.get(nextInstructionCounter);
+		String wordName = pcb.getProgramId() + "_code_" + nextInstructionCounter;
+		return SystemCalls.getFromMemory(wordName);
 	}
 	
 	public String getNextInstructionAndIncrement() {
@@ -68,11 +22,19 @@ public class Program {
 	}
 	
 	public void block() {
-		this.pcb.setCurrentState(State.BLOCKED);
+		if(pcb.getCurrentState() == State.READY_MEMORY){
+			this.pcb.setCurrentState(State.BLOCKED_MEMORY);
+		}else{
+			this.pcb.setCurrentState(State.BLOCKED_DISK);
+		}
 	}
 	
 	public void ready() {
-		this.pcb.setCurrentState(State.READY);
+		if(pcb.getCurrentState() == State.BLOCKED_MEMORY){
+			this.pcb.setCurrentState(State.READY_MEMORY);
+		}else{
+			this.pcb.setCurrentState(State.READY_DISK);
+		}
 	}
 	
 	public void finish() {
@@ -88,15 +50,11 @@ public class Program {
 	}
 	
 	public int getMemoryLowerBound(){
-		return this.pcb.getLowerMemoryBound();
+		return this.pcb.getMemoryLowerBound();
 	}
 
 	public int getMemoryUpperBound(){
-		return this.pcb.getUpperMemoryBound();
-	}
-
-	public int getMemorySize(){
-		return this.pcb.getMemorySize();
+		return this.pcb.getMemoryUpperBound();
 	}
 
 	@Override

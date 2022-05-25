@@ -17,6 +17,7 @@ public class Scheduler {
 	private LinkedList<Program> blockedQueue;
 	private int currentTimeTick;
 	private Processor processor;
+	private ProgramHandler programHandler;
 	private Hashtable<Integer, LinkedList<String>> toAddTable;
 	private Scanner scanner;
 	
@@ -31,13 +32,14 @@ public class Scheduler {
 	public static Scheduler getSchedulerInstance() {
 		if(instance == null) {
 			instance = new Scheduler();
-			instance.initialiseProcessor();
+			instance.initialiseOtherVariables();
 		}
 		return instance;
 	}
 
-	private void initialiseProcessor() {
+	private void initialiseOtherVariables() {
 		this.processor = new Processor();
+		this.programHandler = ProgramHandler.getInstance();
 	}
 
 	public void addProgram(String programName, int time) {
@@ -69,13 +71,13 @@ public class Scheduler {
 	private void checkProgramsToAdd() {
 		LinkedList<String> toAddNowList = toAddTable.get(currentTimeTick);
 		if(toAddNowList != null) {
-			for(String programToAdd : toAddNowList) addProgram(programToAdd);
+			for(String programToAdd : toAddNowList) programHandler.createNewProgram(programToAdd);
 			toAddNowList.clear();
 		}
 	}
 
-	private void addProgram(String programName) {
-		readyQueue.add(new Program(programName));
+	public void addProgram(Program program) {
+		readyQueue.add(program);
 	}
 
 	private boolean finishedExecuting() {

@@ -1,7 +1,9 @@
 package main;
 public enum State {
-	READY,
+	READY_DISK,
+	READY_MEMORY,
 	RUNNING,
-	BLOCKED,
+	BLOCKED_MEMORY,
+	BLOCKED_DISK,
 	FINISHED
 }
