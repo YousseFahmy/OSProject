@@ -9,7 +9,7 @@ import exceptions.NotEnoughSpaceException;
 import exceptions.VariableDoesNotExistException;
 
 public class Memory {
-    private static final int MEMORY_SIZE = 40;
+    private static final int MEMORY_SIZE = 20;
     
     private static Memory instance;
     
@@ -27,15 +27,22 @@ public class Memory {
     }
 
     public void loadToMemory(Program program){
-        // int programSize = program.getSize();
-        // find space for program
-        // if no space found
-        //  find program to unload
-        //  unload program
-        // check if program data is already in disk
-        // if in disk
-        //  load from disk
-        //  save in memory
+        int programSize = program.getSize();
+        program.setInMemory();
+        ensureSpaceAvailable(programSize);
+        int memorySpaceIdx = findSpaceStartIdx(programSize);
+        DiskData programMemoryChunk = disk.loadFromDisk(program.getID());
+        for(int wordOffset = 0; wordOffset < programMemoryChunk.getData().size(); wordOffset++){
+            MemoryWord memoryWord = programMemoryChunk.getData().get(wordOffset);
+            String programLowerMemory = program.getID() + "_pcb_memLowerBound";
+            String programUpperMemory = program.getID() + "_pcb_memUpperBound";
+            if(memoryWord.getName().equals(programLowerMemory)){
+                memory.set(memorySpaceIdx + wordOffset++, new MemoryWord(programLowerMemory, memorySpaceIdx + ""));
+                memory.set(memorySpaceIdx + wordOffset, new MemoryWord(programUpperMemory, memorySpaceIdx + programSize + ""));
+            }else{
+                memory.set(memorySpaceIdx + wordOffset, memoryWord);
+            }
+        }
     }
 
     public void put(int idx, MemoryWord obj){
@@ -121,18 +128,21 @@ public class Memory {
     }
 
     private void unloadFromMemory(int programId){
-        DiskData toUnload = new DiskData();
+        DiskData dataToUnload = new DiskData();
+        Program programtoUnload = ProgramHandler.getInstance().getProgramById(programId);
+        programtoUnload.setOnDisk();
 
         for(int memLocation = 0; memLocation < MEMORY_SIZE; memLocation++){
             MemoryWord word = memory.get(memLocation);
+            if(word == null) continue;
             String[] wordName = word.getName().split("_");
             int wordProgramId = Integer.parseInt(wordName[0]);    
             if(programId == wordProgramId){
-                toUnload.addToData(word);
+                dataToUnload.addToData(word);
                 removeWordAt(memLocation);
             }
         }
-        disk.saveToDisk(programId, toUnload);
+        disk.saveToDisk(programId, dataToUnload);
     }
 
     private void removeWordAt(int memLocation){

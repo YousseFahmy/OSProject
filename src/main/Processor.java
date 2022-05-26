@@ -4,7 +4,6 @@ import java.util.Set;
 
 import exceptions.InvalidArgumentException;
 import exceptions.ProgramBlockedException;
-import exceptions.ProgramFinishedException;
 
 public class Processor {
 
@@ -64,8 +63,6 @@ public class Processor {
 		case "semSignal":
 			semSignalCommand(commandLine);
 			break;
-		case "end":
-			throw new ProgramFinishedException();
 		}
 	}
 

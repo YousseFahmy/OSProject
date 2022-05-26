@@ -98,10 +98,11 @@ public class Scheduler {
 		try {
 			for(int tick = 0; tick < TIME_SLICE_AMOUNT; tick++) {
 				checkProgramsToAdd();
+				ensureProgramInMemory(programToRun);
 				printSliceAnalysis(programToRun);
+				if(programToRun == null) break;
 				processor.run(programToRun);
 				currentTimeTick++;
-				if(programToRun == null) break;
 			}
 			if(programToRun != null) readyQueue.addLast(programToRun);
 		}catch (ProgramBlockedException e) {
@@ -134,6 +135,10 @@ public class Scheduler {
 		System.out.println(blockedQueue);
 		System.out.println("#################");
 		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
+	}
+
+	private void ensureProgramInMemory(Program program){
+		if(program.getState() != State.READY_MEMORY) SystemCalls.loadToMemory(program);
 	}
 
 	private void blockProgram(Program program) {

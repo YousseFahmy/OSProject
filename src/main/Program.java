@@ -50,9 +50,23 @@ public class Program {
 	public void finish() {
 		this.pcb.setCurrentState(State.FINISHED);
 	}
+
+	public void setOnDisk(){
+		if(pcb.getCurrentState() == State.READY_MEMORY) pcb.setCurrentState(State.READY_DISK);
+		if(pcb.getCurrentState() == State.BLOCKED_MEMORY) pcb.setCurrentState(State.BLOCKED_DISK);
+	}
+
+	public void setInMemory(){
+		if(pcb.getCurrentState() == State.READY_DISK) pcb.setCurrentState(State.READY_MEMORY);
+		if(pcb.getCurrentState() == State.BLOCKED_DISK) pcb.setCurrentState(State.BLOCKED_MEMORY);
+	}
 	
 	public int getID() {
 		return this.pcb.getProgramId();
+	}
+
+	public State getState(){
+		return this.pcb.getCurrentState();
 	}
 	
 	public String getName() {

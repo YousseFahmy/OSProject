@@ -5,12 +5,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class ProgramHandler {
     public static final int VARS_PER_PROGRAM = 4;
 
     private static ProgramHandler instance;
 
+    private Hashtable<Integer, Program> idProgramLink;
     private Memory memory;
     private Scheduler scheduler;
     private PCB programPCB;
@@ -18,6 +20,7 @@ public class ProgramHandler {
     private int memoryLowerBound;
 
     private ProgramHandler(){
+        idProgramLink = new Hashtable<>();
         memory = Memory.getMemoryInstance();
         scheduler = Scheduler.getSchedulerInstance();
     }
@@ -25,6 +28,10 @@ public class ProgramHandler {
     public static ProgramHandler getInstance(){
         if(instance == null) instance = new ProgramHandler();
         return instance;
+    }
+
+    public Program getProgramById(int programId){
+        return idProgramLink.get(programId);
     }
 
     public void createNewProgram(String programName){
@@ -37,6 +44,7 @@ public class ProgramHandler {
         memory.put(memoryLowerBound, programMemoryChunk);
         Program programObject = new Program(programName, programPCB);
         scheduler.addProgram(programObject);
+        idProgramLink.put(this.programPCB.getProgramId(), programObject);
     }
 
     private MemoryWord[] setupMemoryChunk(String programName, ArrayList<String> programCode){
