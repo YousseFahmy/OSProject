@@ -41,6 +41,7 @@ public class ProgramHandler {
         this.memoryLowerBound = memory.findSpaceStartIdx(programSize);
         this.programPCB = new PCB();
         MemoryWord[] programMemoryChunk = setupMemoryChunk(programName, programCode);
+        System.out.println("ADDING PROGRAM " + programPCB.getProgramId() + " TO MEMORY");
         memory.put(memoryLowerBound, programMemoryChunk);
         Program programObject = new Program(programName, programPCB);
         scheduler.addProgram(programObject);

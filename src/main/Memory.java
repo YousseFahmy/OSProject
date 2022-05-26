@@ -9,7 +9,7 @@ import exceptions.NotEnoughSpaceException;
 import exceptions.VariableDoesNotExistException;
 
 public class Memory {
-    private static final int MEMORY_SIZE = 20;
+    private static final int MEMORY_SIZE = 40;
     
     private static Memory instance;
     
@@ -27,6 +27,7 @@ public class Memory {
     }
 
     public void loadToMemory(Program program){
+        System.out.println("LOADING PROGRAM " + program.getID() + " FROM MEMORY");
         int programSize = program.getSize();
         program.setInMemory();
         ensureSpaceAvailable(programSize);
@@ -128,6 +129,7 @@ public class Memory {
     }
 
     private void unloadFromMemory(int programId){
+        System.out.println("UNLOADING PROGRAM " + programId + " FROM MEMORY");
         DiskData dataToUnload = new DiskData();
         Program programtoUnload = ProgramHandler.getInstance().getProgramById(programId);
         programtoUnload.setOnDisk();
@@ -190,6 +192,19 @@ public class Memory {
             if(word.getName().equals(memoryWordName)) return word.getValue();
         }
         throw new VariableDoesNotExistException();
+    }
+
+    public static void printMemory(){
+        System.out.println("#################");
+        for(int wordIdx = 0; wordIdx < MEMORY_SIZE; wordIdx++){
+            MemoryWord wordAtIdx = instance.memory.get(wordIdx);
+            if(wordAtIdx != null)
+                System.out.println(wordIdx + ": " + wordAtIdx.getName() + " = " + wordAtIdx.getValue());
+                else
+                System.out.println(wordIdx + ": EMPTY");
+
+        }
+        System.out.println("#################");
     }
 
 }

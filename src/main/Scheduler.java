@@ -100,6 +100,7 @@ public class Scheduler {
 				checkProgramsToAdd();
 				ensureProgramInMemory(programToRun);
 				printSliceAnalysis(programToRun);
+				Memory.printMemory();
 				if(programToRun == null) break;
 				processor.run(programToRun);
 				currentTimeTick++;

@@ -24,7 +24,7 @@ public class Disk {
         return disk.get(programId);
     }
 
-    public boolean savedToDisk(int programId){
-        return !(disk.get(programId) == null);
+    public void printDisk(){
+        // TODO implement
     }
 }

@@ -4,6 +4,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		Scheduler scheduler = Scheduler.getSchedulerInstance();
+		Memory.getMemoryInstance();
+		Disk.getInstance();
+		ProgramHandler.getInstance();
 
 		scheduler.addProgram("Program_1.txt", 0); // PrintFromTo
 		scheduler.addProgram("Program_2.txt", 1); // Write To File
