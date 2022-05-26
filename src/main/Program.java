@@ -1,5 +1,8 @@
 package main;
 
+import exceptions.ProgramFinishedException;
+import exceptions.VariableDoesNotExistException;
+
 public class Program {
 	private String name;
 	private PCB pcb;
@@ -12,7 +15,14 @@ public class Program {
 	public String getNextInstruction() {
 		int nextInstructionCounter = pcb.getProgramCounter();
 		String wordName = pcb.getProgramId() + "_code_" + nextInstructionCounter;
-		return SystemCalls.getFromMemory(wordName);
+		String nextInstruction;
+		try{
+			nextInstruction = SystemCalls.getFromMemory(wordName);
+		}catch(VariableDoesNotExistException e){
+			throw new ProgramFinishedException();
+		}
+
+		return nextInstruction;
 	}
 	
 	public String getNextInstructionAndIncrement() {
@@ -55,6 +65,10 @@ public class Program {
 
 	public int getMemoryUpperBound(){
 		return this.pcb.getMemoryUpperBound();
+	}
+
+	public int getSize(){
+		return pcb.getMemoryUpperBound() - pcb.getMemoryLowerBound();
 	}
 
 	@Override

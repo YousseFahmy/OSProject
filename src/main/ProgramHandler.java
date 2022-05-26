@@ -71,7 +71,7 @@ public class ProgramHandler {
     private void setupCodeChunk(MemoryWord[] memoryChunk, ArrayList<String> code){
         String varPrefix = programPCB.getProgramId() + "_code_";
         for(int codeLineNumber = 0; codeLineNumber < code.size(); codeLineNumber++){
-            int wordNumber = codeLineNumber + 8;
+            int wordNumber = codeLineNumber + PCB.SIZE_IN_MEMORY + VARS_PER_PROGRAM;
             String wordName = varPrefix + codeLineNumber;
             MemoryWord word = new MemoryWord(wordName, code.get(codeLineNumber));
             memoryChunk[wordNumber] = word;
@@ -86,7 +86,6 @@ public class ProgramHandler {
 			while((line = reader.readLine()) != null) {
 				parseAndAdd(code, line);
 			}
-            code.add("end");
         }catch(IOException e){
             e.printStackTrace();
         }

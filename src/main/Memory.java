@@ -27,6 +27,7 @@ public class Memory {
     }
 
     public void loadToMemory(Program program){
+        // int programSize = program.getSize();
         // find space for program
         // if no space found
         //  find program to unload
@@ -81,7 +82,7 @@ public class Memory {
                     overallBiggestSpaceIdx = currentBiggestSpaceIdx;
                 }
                 currentBiggestSpace = 0;
-                currentBiggestSpaceIdx = wordIdx;
+                currentBiggestSpaceIdx = wordIdx + 1;
             }
         }
         if(currentBiggestSpace > overallBiggestSpace){
