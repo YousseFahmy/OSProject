@@ -149,7 +149,8 @@ public class Memory {
 
         for(int memLocation = programVariablesStart; memLocation < programVariablesEnd; memLocation++){
             MemoryWord wordAtLocation = memory.get(memLocation);
-            if(wordAtLocation == null){
+            String[] wordName = wordAtLocation.getName().split("_");
+            if(wordName[2].equals(".freeVariable")){
                 setInMemory(memLocation, memoryWordName, variableValue);
                 return;
             }

@@ -43,6 +43,7 @@ public class ProgramHandler {
         MemoryWord[] memoryChunk = new MemoryWord[this.programSize];
 
         setupPCBChunk(memoryChunk);
+        setupVariablesChunk(memoryChunk);
         setupCodeChunk(memoryChunk, programCode);
 
         return memoryChunk;
@@ -66,6 +67,14 @@ public class ProgramHandler {
 		int memoryUpperBound = memoryLowerBound + this.programSize;
         programPCB.setMemoryUpperBound(memoryUpperBound);
 		memoryChunk[4] = new MemoryWord(varPrefix + "memUpperBound", memoryUpperBound + "");
+    }
+
+    private void setupVariablesChunk(MemoryWord[] memoryChunk){
+        int variableChunkStartIdx = PCB.SIZE_IN_MEMORY;
+        String varName = programPCB.getProgramId() + "_vars_.freeVariable";
+        for(int var = 0; var < VARS_PER_PROGRAM; var++){
+            memoryChunk[variableChunkStartIdx + var] = new MemoryWord(varName, "");
+        }
     }
 
     private void setupCodeChunk(MemoryWord[] memoryChunk, ArrayList<String> code){
