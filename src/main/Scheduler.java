@@ -9,7 +9,7 @@ import exceptions.*;
 public class Scheduler {
 
 	private static final int TIME_SLICE_AMOUNT = 2;
-	private static final boolean PAUSE_ANALYSIS_PRINTING = true;
+	private static final boolean PAUSE_ANALYSIS_PRINTING = false;
 	
 	private static Scheduler instance;
 	
@@ -17,7 +17,8 @@ public class Scheduler {
 	private LinkedList<Program> blockedQueue;
 	private int currentTimeTick;
 	private Processor processor;
-	private Hashtable<Integer, LinkedList<Program>> toAddTable;
+	private ProgramHandler programHandler;
+	private Hashtable<Integer, LinkedList<String>> toAddTable;
 	private Scanner scanner;
 	
 	private Scheduler(){
@@ -31,22 +32,23 @@ public class Scheduler {
 	public static Scheduler getSchedulerInstance() {
 		if(instance == null) {
 			instance = new Scheduler();
-			instance.initialiseProcessor();
+			instance.initialiseOtherVariables();
 		}
 		return instance;
 	}
 
-	private void initialiseProcessor() {
+	private void initialiseOtherVariables() {
 		this.processor = new Processor();
+		this.programHandler = ProgramHandler.getInstance();
 	}
 
-	public void addProgram(Program program, int time) {
-		LinkedList<Program> exisitingList = toAddTable.get(time);
+	public void addProgram(String programName, int time) {
+		LinkedList<String> exisitingList = toAddTable.get(time);
 		if(exisitingList != null) {
-			exisitingList.add(program);
+			exisitingList.add(programName);
 		}else {
 			exisitingList = new LinkedList<>();
-			exisitingList.add(program);
+			exisitingList.add(programName);
 			toAddTable.put(time, exisitingList);
 		}
 		
@@ -67,14 +69,14 @@ public class Scheduler {
 	}
 
 	private void checkProgramsToAdd() {
-		LinkedList<Program> toAddNowList = toAddTable.get(currentTimeTick);
+		LinkedList<String> toAddNowList = toAddTable.get(currentTimeTick);
 		if(toAddNowList != null) {
-			for(Program programToAdd : toAddNowList) addProgram(programToAdd);
+			for(String programToAdd : toAddNowList) programHandler.createNewProgram(programToAdd);
 			toAddNowList.clear();
 		}
 	}
 
-	private void addProgram(Program program) {
+	public void addProgram(Program program) {
 		readyQueue.add(program);
 	}
 
@@ -96,10 +98,12 @@ public class Scheduler {
 		try {
 			for(int tick = 0; tick < TIME_SLICE_AMOUNT; tick++) {
 				checkProgramsToAdd();
+				ensureProgramInMemory(programToRun);
 				printSliceAnalysis(programToRun);
+				Memory.printMemory();
+				if(programToRun == null) break;
 				processor.run(programToRun);
 				currentTimeTick++;
-				if(programToRun == null) break;
 			}
 			if(programToRun != null) readyQueue.addLast(programToRun);
 		}catch (ProgramBlockedException e) {
@@ -132,6 +136,10 @@ public class Scheduler {
 		System.out.println(blockedQueue);
 		System.out.println("#################");
 		if(PAUSE_ANALYSIS_PRINTING) scanner.nextLine();
+	}
+
+	private void ensureProgramInMemory(Program program){
+		if(program.getState() != State.READY_MEMORY) SystemCalls.loadToMemory(program);
 	}
 
 	private void blockProgram(Program program) {

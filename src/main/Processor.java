@@ -100,6 +100,7 @@ public class Processor {
 		String fileName = SystemCalls.getProcessVariable(runningProgramId, fileNameIdentifier);
 		String contentVarIdentifier = commandLine[2];
 		String content = SystemCalls.getProcessVariable(runningProgramId, contentVarIdentifier);
+		if(content.equals("temp")) content = SystemCalls.getProcessVariable(runningProgramId, "temp");
 		SystemCalls.writeFile(fileName, content);
 	}
 	

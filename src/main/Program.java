@@ -1,123 +1,92 @@
 package main;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
 
 import exceptions.ProgramFinishedException;
 import exceptions.VariableDoesNotExistException;
 
 public class Program {
-	private int id;
 	private String name;
-	private ArrayList<String> code;
-	private State state;
-	private int nextInstruction;
-	private Hashtable<String, String> vars;
-	
-	private static int nextId = 1;
-	
-	public Program(String fileName) {
-		this.id = nextId++;
+	private PCB pcb;
+
+	public Program(String fileName, PCB programPCB) {
 		this.name = fileName;
-		this.state = State.READY;
-		this.nextInstruction = 0;
-		this.vars = new Hashtable<>();
-		this.code = new ArrayList<>();
-		SystemCalls.reserveProgramMemory(this);
-		parseProgramCode(fileName);
-	}
-
-	private void parseProgramCode(String fileName) {
-		String filePath = "programs" + File.separator + fileName;
-		try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
-			String line;
-			while((line = reader.readLine()) != null) {
-				parseAndAdd(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void parseAndAdd(String line) {
-		String[] splitLine = line.split(" ");
-		if(!splitLine[0].equals("assign")) {
-			code.add(line); return;
-		}
-		
-		String inputMethod = splitLine[2];
-		String firstInstruction;
-
-		if(inputMethod.equals("input")){
-			firstInstruction = "assign temp " + splitLine[2];
-		}else{
-			firstInstruction = "assign temp readFile " + splitLine[3];
-		}
-
-		String secondInstruction = "assign " + splitLine[1] + " temp";
-		code.add(firstInstruction);
-		code.add(secondInstruction);
+		this.pcb = programPCB;
 	}
 	
 	public String getNextInstruction() {
-		if(nextInstruction == code.size()) {
+		int nextInstructionCounter = pcb.getProgramCounter();
+		String wordName = pcb.getProgramId() + "_code_" + nextInstructionCounter;
+		String nextInstruction;
+		try{
+			nextInstruction = SystemCalls.getFromMemory(wordName);
+		}catch(VariableDoesNotExistException e){
 			throw new ProgramFinishedException();
 		}
-		
-		return code.get(nextInstruction);
+
+		return nextInstruction;
 	}
 	
 	public String getNextInstructionAndIncrement() {
 		String instruction = this.getNextInstruction();
-		nextInstruction++;
+		pcb.incrementProgramCounter();
 		return instruction;
 	}
 	
 	public void block() {
-		this.state = State.BLOCKED;
+		if(pcb.getCurrentState() == State.READY_MEMORY){
+			this.pcb.setCurrentState(State.BLOCKED_MEMORY);
+		}else{
+			this.pcb.setCurrentState(State.BLOCKED_DISK);
+		}
 	}
 	
 	public void ready() {
-		this.state = State.READY;
+		if(pcb.getCurrentState() == State.BLOCKED_MEMORY){
+			this.pcb.setCurrentState(State.READY_MEMORY);
+		}else{
+			this.pcb.setCurrentState(State.READY_DISK);
+		}
 	}
 	
 	public void finish() {
-		this.state = State.FINISHED;
+		this.pcb.setCurrentState(State.FINISHED);
 	}
-	
-	public String getVariable(String requestedVarIdentifier){
-		String varValue = vars.get(requestedVarIdentifier);
-		if (varValue == null) throw new VariableDoesNotExistException();
-		return varValue;
+
+	public void setOnDisk(){
+		if(pcb.getCurrentState() == State.READY_MEMORY) pcb.setCurrentState(State.READY_DISK);
+		if(pcb.getCurrentState() == State.BLOCKED_MEMORY) pcb.setCurrentState(State.BLOCKED_DISK);
 	}
-	
-	public void addVariable(String identifier, String value) {
-		vars.put(identifier, value);
+
+	public void setInMemory(){
+		if(pcb.getCurrentState() == State.READY_DISK) pcb.setCurrentState(State.READY_MEMORY);
+		if(pcb.getCurrentState() == State.BLOCKED_DISK) pcb.setCurrentState(State.BLOCKED_MEMORY);
 	}
 	
 	public int getID() {
-		return this.id;
+		return this.pcb.getProgramId();
+	}
+
+	public State getState(){
+		return this.pcb.getCurrentState();
 	}
 	
 	public String getName() {
 		return this.name;
 	}
 	
-	public void setState(State newState) {
-		this.state = newState;
-	}
-	
-	public State getState() {
-		return this.state;
-	}
-	
-	@Override
-	public String toString() {
-		return "ID: " + this.id + " Program: " + this.name;
+	public int getMemoryLowerBound(){
+		return this.pcb.getMemoryLowerBound();
 	}
 
-	
+	public int getMemoryUpperBound(){
+		return this.pcb.getMemoryUpperBound();
+	}
+
+	public int getSize(){
+		return pcb.getMemoryUpperBound() - pcb.getMemoryLowerBound();
+	}
+
+	@Override
+	public String toString() {
+		return "ID: " + this.pcb.getProgramId() + " Program: " + this.name;
+	}
 }

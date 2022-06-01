@@ -1,0 +1,36 @@
+2_pcb_programId||2
+2_pcb_state||READY_MEMORY
+2_pcb_pc||0
+2_pcb_memLowerBound||18
+2_pcb_memUpperBound||36
+2_vars_.freeVariable||
+2_vars_.freeVariable||
+2_vars_.freeVariable||
+2_vars_.freeVariable||
+2_code_0||semWait userInput
+2_code_1||assign temp input
+2_code_2||assign a temp
+2_code_3||assign temp input
+2_code_4||assign b temp
+2_code_5||semSignal userInput
+2_code_6||semWait file
+2_code_7||writeFile a b
+2_code_8||semSignal file
+1_pcb_programId||1
+1_pcb_state||READY_MEMORY
+1_pcb_pc||0
+1_pcb_memLowerBound||0
+1_pcb_memUpperBound||18
+1_vars_temp||1
+1_vars_a||1
+1_vars_.freeVariable||
+1_vars_.freeVariable||
+1_code_0||semWait userInput
+1_code_1||assign temp input
+1_code_2||assign a temp
+1_code_3||assign temp input
+1_code_4||assign b temp
+1_code_5||semSignal userInput
+1_code_6||semWait userOutput
+1_code_7||printFromTo a b
+1_code_8||semSignal userOutput
