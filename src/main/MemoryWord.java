@@ -25,4 +25,8 @@ public class MemoryWord {
     public String getValue(){
         return this.wordValue;
     }
+
+    public String toString(){
+        return this.wordName + "||" + this.wordValue;
+    }
 }

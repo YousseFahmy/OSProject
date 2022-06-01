@@ -15,7 +15,7 @@ public class Main {
 		// scheduler.addProgram("Program_5.txt", 20); // Simple IO
 
 		scheduler.run();
-
+		if(true);
 	}
 
 }
