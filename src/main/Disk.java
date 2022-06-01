@@ -2,14 +2,14 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Set;
 
 public class Disk {
-    private static final String diskPath = "src/disk.txt";
+    private static final String diskPrefix = "disk/";
 
     private static Disk instance;
 
@@ -26,18 +26,16 @@ public class Disk {
 
     public void saveToDisk(int programId, DiskData programData){
         disk.put(programId, programData);
-        writeDiskToFile();
+        writeDiskToFile(programId);
     }
 
-    private void writeDiskToFile(){
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(diskPath))){
-            Set<Integer> keys = disk.keySet();
-            for(Integer key : keys){
-                DiskData processData = disk.get(key);
-                for(MemoryWord word : processData.getData()){
-                    writer.write(word.toString());
-                    writer.newLine();
-                }
+    private void writeDiskToFile(int programId){
+        String filePath = diskPrefix + programId + ".txt";
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))){
+            DiskData processData = disk.get(programId);
+            for(MemoryWord word : processData.getData()){
+                writer.write(word.toString());
+                writer.newLine();
             }
         }catch(IOException e){
             e.printStackTrace();
@@ -46,12 +44,12 @@ public class Disk {
 
     public DiskData loadFromDisk(int programId){
         DiskData programData = new DiskData();
-
-        try(BufferedReader reader = new BufferedReader(new FileReader(diskPath))){
+        String filePath = diskPrefix + programId + ".txt";
+        try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
             while((line = reader.readLine()) != null){
-                String wordName = line.split("||")[0];
-                String wordData = line.split("||")[1];
+                String wordName = line.split(MemoryWord.NAME_DATA_DELIMITER)[0];
+                String wordData = line.split(MemoryWord.NAME_DATA_DELIMITER)[1];
                 String wordProgramIdStr = wordName.split("_")[0];
                 int wordProgramId = Integer.parseInt(wordProgramIdStr);
                 if(wordProgramId == programId){
@@ -62,9 +60,15 @@ public class Disk {
             e.printStackTrace();
         }
 
-        return programData;
+        try{
+            File diskFile = new File(filePath);
+            if(diskFile.exists()) diskFile.delete();
+            diskFile.createNewFile();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
-        // return disk.get(programId);
+        return programData;
     }
 
     public void printDisk(){

@@ -27,7 +27,7 @@ public class Memory {
     }
 
     public void loadToMemory(Program program){
-        System.out.println("LOADING PROGRAM " + program.getID() + " FROM MEMORY");
+        System.out.println("LOADING PROGRAM " + program.getID() + " TO MEMORY");
         int programSize = program.getSize();
         program.setInMemory();
         ensureSpaceAvailable(programSize);
@@ -144,6 +144,9 @@ public class Memory {
                 removeWordAt(memLocation);
             }
         }
+
+        if(ProgramHandler.getInstance().getProgramById(programId).getState() == State.FINISHED) return;
+
         disk.saveToDisk(programId, dataToUnload);
     }
 

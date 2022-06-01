@@ -1,6 +1,7 @@
 package main;
 
 public class MemoryWord {
+    public static final String NAME_DATA_DELIMITER = "-";
     private String wordName;
     private String wordValue;
 
@@ -27,6 +28,6 @@ public class MemoryWord {
     }
 
     public String toString(){
-        return this.wordName + "||" + this.wordValue;
+        return this.wordName + NAME_DATA_DELIMITER + this.wordValue;
     }
 }

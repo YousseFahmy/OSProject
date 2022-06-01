@@ -82,7 +82,7 @@ public class ProgramHandler {
         int variableChunkStartIdx = PCB.SIZE_IN_MEMORY;
         String varName = programPCB.getProgramId() + "_vars_.freeVariable";
         for(int var = 0; var < VARS_PER_PROGRAM; var++){
-            memoryChunk[variableChunkStartIdx + var] = new MemoryWord(varName, "");
+            memoryChunk[variableChunkStartIdx + var] = new MemoryWord(varName, "GARBAGE_VALUE");
         }
     }
 
