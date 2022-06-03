@@ -122,7 +122,10 @@ public class Memory {
         int biggestProgram = 0;
 
         for(int key : programsInMemory){
-            if(programSizes.get(key) > biggestSize) biggestProgram = key;
+            if(programSizes.get(key) > biggestSize){
+                biggestProgram = key;
+                biggestSize = programSizes.get(key);
+            } 
         }
 
         return biggestProgram;
